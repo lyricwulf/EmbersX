@@ -1,0 +1,30 @@
+# Cmake stuff
+CMakeLists.txt.user
+CMakeCache.txt
+CMakeFiles
+CMakeScripts
+Testing
+Makefile
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
+_deps
+
+# IDE stuff
+.vs/
+.vscode/
+
+# Built stuff
+build/
+out/
+*.pdb
+
+# External extras
+doc/
+test/
+data/
+
+# Test files
+*.mid
+*.png
