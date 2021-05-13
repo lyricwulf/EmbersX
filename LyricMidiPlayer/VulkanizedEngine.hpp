@@ -958,7 +958,8 @@ private:
 		t.detach();
 
 		start_time = std::chrono::high_resolution_clock::now();
-
+		auto t1 = std::chrono::high_resolution_clock::now();
+			
 		// actual main loop..
 		while (!glfwWindowShouldClose(window)) {
 
@@ -966,13 +967,12 @@ private:
 
 			glfwPollEvents();
 
-			auto t1 = std::chrono::high_resolution_clock::now();
-
 			drawFrame();
 
 			auto t2 = std::chrono::high_resolution_clock::now();
 
 			gpu_times.push_back(t2 - t1);
+			t1 = t2;
 		}
 	}
 
