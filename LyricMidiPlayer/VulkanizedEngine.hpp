@@ -904,58 +904,10 @@ private:
 		cursorInfo.bVisible = 0; // set the cursor visibility
 		SetConsoleCursorInfo(hConsole, &cursorInfo);
 
-		//benchmarking
-		std::vector<chrono::duration<long long, std::nano>> gpu_times;
-		chrono::duration<long long, std::nano> gpu_time = std::chrono::microseconds(500);
-
-		std::thread t([&gpu_time, &gpu_times, this]() {
-			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-
-			std::vector<const char*> bars = { u8" ", u8"\u258F", u8"\u258E", u8"\u258D", u8"\u258C", u8"\u258B", u8"\u258A", u8"\u2589" };
-
-			std::wcout << L"        0|";
-			std::wcout << L"     2000|";
-			std::wcout << L"     4000|";
-			std::wcout << L"     6000|";
-			std::wcout << L"     8000|";
-			std::wcout << L"    10000|";
-			std::wcout << L"    12000|" << std::endl;
-
-			int max = 0;
-
-			while (true) {
-				// TODO: FORMAT THIS STUFF TO NOT WRAP, WE NEED MAGNITUDE DETECTION :( 
-				chrono::duration<long long, std::nano> best_time = std::chrono::hours(24);
-
-				if (gpu_times.empty()) continue;
-
-				while (!gpu_times.empty())
-				{
-					best_time = std::min(best_time, gpu_times.back());
-					gpu_times.pop_back();
-				}
-
-				int fps = static_cast <int>(1 / (best_time.count() / 1000000000.));
-				std::wcout << L"\r" << fps << L" FPS ";
-				for (int i = 0; i < fps / 200; i++)
-					std::wcout << u8"\u2588";
-				std::wcout << bars[(fps % 200) / 28];
-
-				if (fps > max)
-				{
-					max = fps;
-					std::wcout << "|+" << max << " MAX";
-				}
-
-				for (int i = 0; i < (max - fps) / 200; ++i) {
-					std::cout << " ";
-				}
-
-				std::cout << std::flush;
-				std::this_thread::sleep_for(std::chrono::milliseconds(60));
-			}
-			});
-		t.detach();
+    auto timer = chrono::steady_clock();
+    auto last_time = timer.now();
+    uint64_t frame_counter = 0;
+    uint64_t fps = 0;
 
 		start_time = std::chrono::high_resolution_clock::now();
 
@@ -965,14 +917,16 @@ private:
 			uniform_buffer_object.world_tick = ticks_per_second * ((std::chrono::high_resolution_clock::now() - start_time).count() / 1000000000.f);
 
 			glfwPollEvents();
-
-			auto t1 = std::chrono::high_resolution_clock::now();
-
 			drawFrame();
 
-			auto t2 = std::chrono::high_resolution_clock::now();
-
-			gpu_times.push_back(t2 - t1);
+      ++frame_counter;
+      if(last_time + chrono::seconds(1) < timer.now())
+      {
+        last_time = timer.now();
+        fps = frame_counter;
+        frame_counter = 0;
+        cout << fps << " fps\n";
+      }
 		}
 	}
 
