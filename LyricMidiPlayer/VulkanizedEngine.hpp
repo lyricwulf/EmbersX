@@ -924,18 +924,20 @@ private:
 			int max = 0;
 
 			while (true) {
-				// TODO: FORMAT THIS STUFF TO NOT WRAP, WE NEED MAGNITUDE DETECTION :( 
-				chrono::duration<long long, std::nano> best_time = std::chrono::hours(24);
+				size_t avg_time = 0;
 
 				if (gpu_times.empty()) continue;
+				int times_count = gpu_times.size();
 
 				while (!gpu_times.empty())
 				{
-					best_time = std::min(best_time, gpu_times.back());
+					avg_time = avg_time + gpu_times.back().count();
 					gpu_times.pop_back();
 				}
 
-				int fps = static_cast <int>(1 / (best_time.count() / 1000000000.));
+				avg_time = avg_time / times_count;
+
+				int fps = static_cast <int>(1 / (avg_time / 1000000000.));
 				std::wcout << L"\r" << fps << L" FPS ";
 				for (int i = 0; i < fps / 200; i++)
 					std::wcout << u8"\u2588";
@@ -959,7 +961,7 @@ private:
 
 		start_time = std::chrono::high_resolution_clock::now();
 		auto t1 = std::chrono::high_resolution_clock::now();
-			
+
 		// actual main loop..
 		while (!glfwWindowShouldClose(window)) {
 
